@@ -39,6 +39,7 @@ def print_row(dataobj,header=False):
 	if header:
 		divider = color.GREEN+"="+color.END if match is True else "="
 		print (divider*17+" ")*11
+	match = False
 
 def geofetch(addr):
 	global iscached
