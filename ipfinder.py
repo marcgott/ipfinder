@@ -24,8 +24,10 @@ def print_row(dataobj,header=False):
 		for param_d in searchParams:
 			if dataobj[param_d.keys()[0]]==param_d.values()[0]:
 				match = True
-				rval = "%-17s" % dataobj[param_d.keys()[0]]
-				dataobj[param_d.keys()[0]]=color.GREEN+color.BOLD+rval+color.END
+				#rval = "%-17s" % dataobj[param_d.keys()[0]]
+				#dataobj[param_d.keys()[0]]=color.GREEN+color.BOLD+rval+color.END
+				for key in dataobj.keys():
+					dataobj[key] = color.GREEN+color.BOLD+("%-17s" % dataobj[key])+color.END
 	if header is True:
 		hstart = color.BOLD+str(color.BLUE if not iscached else color.CYAN)
 		pval = dataobj.keys()
