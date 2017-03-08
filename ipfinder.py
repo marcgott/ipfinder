@@ -10,6 +10,7 @@ import mgcolor
 
 color  = mgcolor.TerminalColor
 searchParams = []
+ignoredIPs = []
 match = False
 iscached = False
 ipcache = {}
@@ -57,16 +58,18 @@ def geofetch(addr):
 desc = "IP Address Information Fetcher. A simple command line tool to retrieve physical location information based on an IP address. Information supplied by FreeGeoIP."
 parser = argparse.ArgumentParser(description=desc,epilog='Thanks for sharing!')
 parser.add_argument('ipaddr', metavar='IP_ADDR', nargs='?', help='Fetch FreeGeoIP data of a single IP address',type=str)
+parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
 parser.add_argument('-file', metavar='FILE', nargs='?', help='Read a list of IP addresses from a file')
 parser.add_argument('-hostname', metavar='HOSTNAME', nargs='?', help='Retrieve information using a hostname.')
-parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
-parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found')
+parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces.')
 parser.add_argument('-raw', action='store_true', help='Return the raw JSON result from FreeGeoIp as is (i.e. in unicode format)')
 parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pairs to search for in the results. (Can be paused with the -wait flag.)')
+parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found')
 
 args = parser.parse_args()
 wait = args.wait if not None else False
 
+print(args)
 def main():
 	while True:
 		addr = args.ipaddr
@@ -80,19 +83,26 @@ def main():
 			for s in args.search:
 				sdict = dict( (k,v) for k,v in (a.split('=') for a in s.split() ) )
 				searchParams.append(sdict)
-
+		if args.ignore is not None:
+			if not args.ignore:
+				mydata = geofetch('')
+				args.ignore.append(smart_str(mydata["ip"]))
+			for a in args.ignore:
+				ignoredIPs.append(a)
+			print ignoredIPs
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
 			if args.hostname is not None:
 				# Single hostname
 				noloop = True
-
 		if args.file:
 			print "Filename "+args.file+" provided"
 			ipfile = open(args.file,"r")
 			ipar = ipfile.read()
 			try:
 				for addr in ipar.split("\n"):
+					if addr in ignoredIPs:
+						pass
 					dataobj = geofetch(addr)
 					if args.raw:
 						print dataobj
@@ -104,7 +114,7 @@ def main():
 							raw_input("Press enter key to continue")
 						match=False
 			except (KeyboardInterrupt,SystemExit):
-				print color.ORANGE+"\nStopping program execution...\n"+color.END
+				print color.ORANGE+"\nExiting...\n"+color.END
 				sys.exit(2)
 			finally:
 				sys.exit(0)
@@ -112,7 +122,8 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
-
+			if addr  in ignoredIPs:
+				raise Exception
 			dataobj = geofetch(addr)
 			if addr is None:
 				noloop = True
@@ -129,7 +140,8 @@ def main():
 				print_row(dataobj)
 			if noloop is True:
 				sys.exit(0)
-
+		except (Exception):
+			pass
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
