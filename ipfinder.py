@@ -27,7 +27,6 @@ def print_row(dataobj,header=False):
 				rval = "%-17s" % dataobj[param_d.keys()[0]]
 				dataobj[param_d.keys()[0]]=color.GREEN+color.BOLD+rval+color.END
 	if header is True:
-		print iscached
 		hstart = color.BOLD+str(color.BLUE if not iscached else color.CYAN)
 		pval = dataobj.keys()
 	else:
