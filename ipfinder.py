@@ -69,7 +69,6 @@ parser.add_argument('-wait', action='store_true', help='Pause the script when a 
 args = parser.parse_args()
 wait = args.wait if not None else False
 
-print(args)
 def main():
 	while True:
 		addr = args.ipaddr
@@ -87,9 +86,9 @@ def main():
 			if not args.ignore:
 				mydata = geofetch('')
 				args.ignore.append(smart_str(mydata["ip"]))
-			for a in args.ignore:
-				ignoredIPs.append(a)
-			print ignoredIPs
+			else:
+				for a in args.ignore:
+					ignoredIPs.append(a)
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
 			if args.hostname is not None:
