@@ -11,9 +11,10 @@ import mgcolor
 color  = mgcolor.TerminalColor
 searchParams = []
 match = False
-
+iscached = False
+ipcache = {}
 def print_row(dataobj,header=False):
-	global searchParams,match
+	global searchParams,match,iscached
 
 	for k in dataobj:
 		if type(dataobj[k]) is unicode:
@@ -26,7 +27,8 @@ def print_row(dataobj,header=False):
 				rval = "%-17s" % dataobj[param_d.keys()[0]]
 				dataobj[param_d.keys()[0]]=color.GREEN+color.BOLD+rval+color.END
 	if header is True:
-		hstart = color.BOLD+color.BLUE 
+		print iscached
+		hstart = color.BOLD+str(color.BLUE if not iscached else color.CYAN)
 		pval = dataobj.keys()
 	else:
 		hstart = ''
@@ -37,9 +39,17 @@ def print_row(dataobj,header=False):
 		print ("="*17+" ")*11
 
 def geofetch(addr):
-	geo = urllib2.urlopen("http://freegeoip.net/json/"+addr)
-	ipdata = geo.read()
-	return json.loads(ipdata,'UTF-8')
+	global iscached
+	exist = ipcache.get(str(addr),None)
+	if exist is not None:
+		iscached = True
+		return ipcache[str(addr)]
+	else:
+		geo = urllib2.urlopen("http://freegeoip.net/json/"+addr)
+		ipdata = geo.read()
+		ipcache[addr] = json.loads(ipdata,'UTF-8')
+		iscached = False
+		return json.loads(ipdata,'UTF-8')
 
 desc = "IP Address Information Fetcher. A simple command line tool to retrieve physical location information based on an IP address. Information supplied by FreeGeoIP."
 parser = argparse.ArgumentParser(description=desc,epilog='Thanks for sharing!')
