@@ -1,15 +1,16 @@
 # ipfinder
 
-This is a clever little command line script I hacked together in Python. It takes either a domain name or IP address and returns the information about the IP address from the FreeGeoIP database. It can read a newline-separated list of IP addresss, it can highlight search terms, it can return just the lat,lon of an IP address. It can handle STDIN, so you can pipe out IP addresses from a live server log and get realtime information.
+This is a clever (IMHO) little command line script I hacked together in Python. It takes either a domain name or IP address and returns the information about the IP address from the FreeGeoIP database. It can read a newline-separated list of IP addresss, it can highlight search terms, it can return just the lat,lon of an IP address. It can handle STDIN, so you can pipe out IP addresses from a live server log and get realtime information on where your visitors (or malicious actors) are coming from.
 <br>
-usage: ipfinder.py [-h] [-file [FILE]] [-hostname [HOSTNAME]] [-coordinates]<br>
-                   [-wait] [-raw] [-search key=val [key=val ...]]<br>
+usage: ipfinder.py [-h] [-coordinates] [-file [FILE]] [-hostname [HOSTNAME]]<br>
+                   [-ignore [IP_ADDR [IP_ADDR ...]]] [-raw]<br>
+                   [-search key=val [key=val ...]] [-wait]<br>
                    [IP_ADDR]<br>
-<br><br>
+<br>
 IP Address Information Fetcher. A simple command line tool to retrieve
 physical location information based on an IP address. Information supplied by
 FreeGeoIP.
-<br><br>
+<br>
 positional arguments:<br>
   IP_ADDR               Fetch FreeGeoIP data of a single IP address
 <br>
