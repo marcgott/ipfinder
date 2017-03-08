@@ -37,7 +37,8 @@ def print_row(dataobj,header=False):
 
 	print (hstart+"%-17s "+color.END)*11  % tuple(pval)
 	if header:
-		print ("="*17+" ")*11
+		divider = color.GREEN+"="+color.END if match is True else "="
+		print (divider*17+" ")*11
 
 def geofetch(addr):
 	global iscached
