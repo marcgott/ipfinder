@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import sys
 import socket
@@ -8,27 +8,41 @@ import argparse
 from django.utils.encoding import smart_str, smart_unicode
 import mgcolor
 
+# This is a small color class I use to give the terminal some pizzazz
 color  = mgcolor.TerminalColor
+
 searchParams = []
 ignoredIPs = []
+colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','time_zone':'tz','longitude':'lon','metro_code':'mcode','latitude':'lat','country_code':'ccode','country_name':'cname','zip_code':'zip'}
 match = False
 iscached = False
 ipcache = {}
-def print_row(dataobj,header=False):
-	global searchParams,match,iscached
 
+def print_row(dataobj,header=False):
+	global searchParams,match,iscached,colabbr
+# Trims the output to 17 characters. Because terminal.
+# I eventually had to give up and use smart_str from django
+	tmpdo =[] 
 	for k in dataobj:
 		if type(dataobj[k]) is unicode:
 			dataobj[k]=smart_str(dataobj[k])[:17]
+		if args.columns is not None and colabbr[k] not in args.columns:
+			tmpdo.append(k)
+	if tmpdo is not None:
+		for dkey in tmpdo:
+			del dataobj[dkey]
 
+# Are we looking for visitors from a particular country or city?
+# If it's a match, color it GREEN
 	if len(searchParams)>0:
 		for param_d in searchParams:
 			if dataobj[param_d.keys()[0]]==param_d.values()[0]:
 				match = True
-				#rval = "%-17s" % dataobj[param_d.keys()[0]]
-				#dataobj[param_d.keys()[0]]=color.GREEN+color.BOLD+rval+color.END
 				for key in dataobj.keys():
 					dataobj[key] = color.GREEN+color.BOLD+("%-17s" % dataobj[key])+color.END
+
+# Since we want to print across, not down, we gotta iterate twice
+# BLUE if it's a new IP address, CYAN if it comes from the cache
 	if header is True:
 		hstart = color.BOLD+str(color.BLUE if not iscached else color.CYAN)
 		pval = dataobj.keys()
@@ -36,12 +50,15 @@ def print_row(dataobj,header=False):
 		hstart = ''
 		pval = dataobj.values()
 
-	print (hstart+"%-17s "+color.END)*11  % tuple(pval)
+	print (hstart+"%-17s "+color.END)*len(dataobj)  % tuple(pval)
+
+# Then print a separator, GREEN if it matches something
 	if header:
 		divider = color.GREEN+"="+color.END if match is True else "="
-		print (divider*17+" ")*11
+		print (divider*17+" ")*len(dataobj)
 	match = False
 
+# Thank you for the magic, FreeGeoIP!
 def geofetch(addr):
 	global iscached
 	exist = ipcache.get(str(addr),None)
@@ -55,28 +72,28 @@ def geofetch(addr):
 		iscached = False
 		return json.loads(ipdata,'UTF-8')
 
+# Initialize the command line parsing arguments
 desc = "IP Address Information Fetcher. A simple command line tool to retrieve physical location information based on an IP address. Information supplied by FreeGeoIP."
 parser = argparse.ArgumentParser(description=desc,epilog='Thanks for sharing!')
 parser.add_argument('ipaddr', metavar='IP_ADDR', nargs='?', help='Fetch FreeGeoIP data of a single IP address',type=str)
+parser.add_argument('-columns', nargs='*', choices=['city','rcode','rname','ip','tz','lat','lon','mcode','ccode','cname','zip'],help='Select which columns to show:\ncity: city name\nrcode: region code (US States) '+color.BOLD+'rname:'+color.END+' region name (US States) '+color.BOLD+'ip:'+color.END+' IP address '+color.BOLD+'tz:'+color.END+' Timezone')
 parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
 parser.add_argument('-file', metavar='FILE', nargs='?', help='Read a list of IP addresses from a file')
 parser.add_argument('-hostname', metavar='HOSTNAME', nargs='?', help='Retrieve information using a hostname.')
-parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces. Providing no arguments will ignore your public IP address.')
+parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces. Providing no IP addresses will ignore your own public IP address.')
 parser.add_argument('-raw', action='store_true', help='Return the raw JSON result from FreeGeoIp as is (i.e. in unicode format)')
 parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pairs to search for in the results. (Can be paused with the -wait flag.)')
-parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found')
-
+parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found. Will not work on piped live file (yet).')
 args = parser.parse_args()
-wait = args.wait if not None else False
-
+# The loop
 def main():
 	while True:
+		print("\n")
 		addr = args.ipaddr
 		noloop = False
 		if addr:
 			# Single IP address
 			noloop = True
-
 		if args.search:
 			# Initializes the search key/value pairs
 			for s in args.search:
@@ -146,5 +163,4 @@ def main():
 			sys.exit(0)
 	
 if __name__ == "__main__":
-    # execute only if run as a script
     main()
