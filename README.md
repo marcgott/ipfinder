@@ -13,19 +13,22 @@ FreeGeoIP.
 positional arguments:<br>
   IP_ADDR               Fetch FreeGeoIP data of a single IP address
 <br>
-<br>
 optional arguments:<br>
   -h, --help            show this help message and exit<br>
-  -file [FILE]          Read a list of IP addresses from a file<br>
-  -hostname [HOSTNAME]  Retrieve information using a hostname.<br>
   -coordinates          Return decimal values as "lat,lon" from results for<br>
                         mapping. Not available when using -file flag.<br>
-  -wait                 Pause the script when a match to a search is found<br>
+  -file [FILE]          Read a list of IP addresses from a file<br>
+  -hostname [HOSTNAME]  Retrieve information using a hostname.<br>
+  -ignore [IP_ADDR [IP_ADDR ...]]<br>
+                        IP addresses to ignore, separated by spaces. Providing<br>
+                        no arguments will ignore your public IP address.<br>
   -raw                  Return the raw JSON result from FreeGeoIp as is (i.e.<br>
                         in unicode format)<br>
   -search key=val [key=val ...]<br>
                         Key/value pairs to search for in the results. (Can be<br>
                         paused with the -wait flag.)<br>
+  -wait                 Pause the script when a match to a search is found<br>
+
 <br>
 Because awk writes to a buffer, you need to run ipfinder against a live apache access_log with stdbuf:<br>
 tail -f /path/to/apache/logs/access_log | stdbuf -oL awk '{print $1}' |python -m ipfinder<br>

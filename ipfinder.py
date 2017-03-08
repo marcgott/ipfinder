@@ -61,7 +61,7 @@ parser.add_argument('ipaddr', metavar='IP_ADDR', nargs='?', help='Fetch FreeGeoI
 parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
 parser.add_argument('-file', metavar='FILE', nargs='?', help='Read a list of IP addresses from a file')
 parser.add_argument('-hostname', metavar='HOSTNAME', nargs='?', help='Retrieve information using a hostname.')
-parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces.')
+parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces. Providing no arguments will ignore your public IP address.')
 parser.add_argument('-raw', action='store_true', help='Return the raw JSON result from FreeGeoIp as is (i.e. in unicode format)')
 parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pairs to search for in the results. (Can be paused with the -wait flag.)')
 parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found')
