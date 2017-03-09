@@ -167,7 +167,8 @@ def main():
 				for addr in ipar.split("\n"):
 					if addr in ignoredIPs:
 						pass
-					dataobj = geofetch(addr)
+					else:
+						dataobj = geofetch(addr)
 					if args.raw:
 						print dataobj
 					else:
