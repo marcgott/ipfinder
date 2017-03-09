@@ -161,7 +161,7 @@ def main():
 			ipar = ipfile.read()
 			try:
 				for addr in ipar.split("\n"):
-					if addr in args.ignore:
+					if args.ignore is not None and addr in args.ignore:
 						pass
 					else:
 						dataobj = geofetch(addr)
@@ -182,6 +182,7 @@ def main():
 		try:
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
+				print addr
 				addr = raw_input(prompt)
 			if args.ignore is not None and addr in args.ignore:
 				pass
