@@ -17,7 +17,6 @@ color  = mgcolor.TerminalColor
 SERVER_PORT = 8675
 
 searchParams = []
-ignoredIPs = []
 colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','time_zone':'tz','longitude':'lon','metro_code':'mcode','latitude':'lat','country_code':'ccode','country_name':'cname','zip_code':'zip'}
 match = False
 iscached = False
@@ -151,9 +150,6 @@ def main():
 			if not args.ignore:
 				mydata = geofetch('')
 				args.ignore.append(smart_str(mydata["ip"]))
-			else:
-				for a in args.ignore:
-					ignoredIPs.append(a)
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
 			if args.hostname is not None:
@@ -165,7 +161,7 @@ def main():
 			ipar = ipfile.read()
 			try:
 				for addr in ipar.split("\n"):
-					if addr in ignoredIPs:
+					if addr in args.ignore:
 						pass
 					else:
 						dataobj = geofetch(addr)
@@ -187,7 +183,7 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
-			if addr  in ignoredIPs:
+			if addr  in args.ignore
 				raise Exception
 			else:
 				dataobj = geofetch(addr)
