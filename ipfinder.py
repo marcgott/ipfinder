@@ -183,7 +183,7 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
-			if addr  in args.ignore
+			if addr in args.ignore:
 				raise Exception
 			else:
 				dataobj = geofetch(addr)
