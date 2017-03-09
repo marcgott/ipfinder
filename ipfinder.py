@@ -89,7 +89,7 @@ def print_row(dataobj,header=False):
 		divider = color.GREEN+"="+color.END if match is True else "="
 		print (divider*17+" ")*len(dataobj)
 	match = False
-	time.sleep(0.6)
+	time.sleep(0.4)
 
 # Thank you for the magic, FreeGeoIP!
 def geofetch(addr):
