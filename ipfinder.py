@@ -5,11 +5,15 @@ import socket
 import urllib2
 import json
 import argparse
+import collections
 from django.utils.encoding import smart_str, smart_unicode
+from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from urlparse import urlparse, parse_qs
 import mgcolor
 
 # This is a small color class I use to give the terminal some pizzazz
 color  = mgcolor.TerminalColor
+SERVER_PORT = 8675
 
 searchParams = []
 ignoredIPs = []
@@ -17,6 +21,34 @@ colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','
 match = False
 iscached = False
 ipcache = {}
+
+#This class will handles any incoming request from
+#the browser 
+class myHandler(BaseHTTPRequestHandler):
+	
+	#Handler for the GET requests
+	def do_GET(self):
+		try:
+			self.send_response(200)
+			self.send_header('Content-type','application/json')
+			self.end_headers()
+			# Send the html message
+			query_components = parse_qs(urlparse(self.path).query)
+			#self.wfile.write(query_components)
+			ipaddr = ''.join(query_components["ip"])
+			self.wfile.write(convert(geofetch(ipaddr)))
+			return
+		except KeyError:
+			pass
+def convert(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert, data))
+    else:
+        return data
 
 def print_row(dataobj,header=False):
 	global searchParams,match,iscached,colabbr
@@ -80,11 +112,25 @@ parser.add_argument('-columns', nargs='*', choices=['city','rcode','rname','ip',
 parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
 parser.add_argument('-file', metavar='FILE', nargs='?', help='Read a list of IP addresses from a file')
 parser.add_argument('-hostname', metavar='HOSTNAME', nargs='?', help='Retrieve information using a hostname.')
+parser.add_argument('-http', metavar='PORT', nargs='*', type=int, default=8675, help='Starts as a web server on PORT (8675 by default). Server accepts querystring ?ip=nnn.nnn.nnn.nnn and returns raw JSON object')
 parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces. Providing no IP addresses will ignore your own public IP address.')
 parser.add_argument('-raw', action='store_true', help='Return the raw JSON result from FreeGeoIp as is (i.e. in unicode format)')
 parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pairs to search for in the results. (Can be paused with the -wait flag.)')
 parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found. Will not work on piped live file (yet).')
 args = parser.parse_args()
+
+if args.http is not None:
+	try:
+		SERVER_PORT = SERVER_PORT if len(args.http)<1 else int(args.http[0])
+		#Create a web server and define the handler to manage the
+		#incoming request
+		server = HTTPServer(('', SERVER_PORT), myHandler)
+		print 'Started httpserver on port ' , SERVER_PORT
+		server.serve_forever()
+	except KeyboardInterrupt:
+		print color.ORANGE+"\nExiting...\n"+color.END
+		exit(0)
+
 # The loop
 def main():
 	while True:
@@ -161,6 +207,6 @@ def main():
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
-	
+
 if __name__ == "__main__":
     main()
