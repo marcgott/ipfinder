@@ -3,6 +3,7 @@
 import sys
 import socket
 import urllib2
+import time
 import json
 import argparse
 import collections
@@ -89,6 +90,7 @@ def print_row(dataobj,header=False):
 		divider = color.GREEN+"="+color.END if match is True else "="
 		print (divider*17+" ")*len(dataobj)
 	match = False
+	time.sleep(1)
 
 # Thank you for the magic, FreeGeoIP!
 def geofetch(addr):
