@@ -132,8 +132,6 @@ if args.http is not None:
 		print color.ORANGE+"\nExiting...\n"+color.END
 		exit(0)
 
-print args.ignore
-
 # The loop
 def main():
 	while True:
@@ -185,7 +183,7 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
-			if addr in args.ignore:
+			if args.ignore is not None and addr in args.ignore:
 				pass
 			else:
 				dataobj = geofetch(addr)
