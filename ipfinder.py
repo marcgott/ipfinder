@@ -182,28 +182,31 @@ def main():
 		try:
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
-				print addr
 				addr = raw_input(prompt)
 			if args.ignore is not None and addr in args.ignore:
 				pass
 			else:
-				dataobj = geofetch(addr)
-				if addr is None:
-					noloop = True
-				if args.raw:
-					# Return raw JSON format
-					print dataobj
-					sys.exit(0)
-				elif args.coordinates:
-					# Return lat,lon
-					print str(dataobj["latitude"])+","+str(dataobj["longitude"])
-					sys.exit(0)
-				else:
-					print_row(dataobj,True)
-					print_row(dataobj)
-					print "\n"
-				if noloop is True:
-					sys.exit(0)
+				try:
+					socket.inet_aton(addr)
+					dataobj = geofetch(addr)
+					if addr is None:
+						noloop = True
+					if args.raw:
+						# Return raw JSON format
+						print dataobj
+						sys.exit(0)
+					elif args.coordinates:
+						# Return lat,lon
+						print str(dataobj["latitude"])+","+str(dataobj["longitude"])
+						sys.exit(0)
+					else:
+						print_row(dataobj,True)
+						print_row(dataobj)
+						print "\n"
+					if noloop is True:
+						sys.exit(0)
+				except socket.error:
+					pass
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
