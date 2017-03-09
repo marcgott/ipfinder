@@ -189,7 +189,8 @@ def main():
 				addr = raw_input(prompt)
 			if addr  in ignoredIPs:
 				raise Exception
-			dataobj = geofetch(addr)
+			else:
+				dataobj = geofetch(addr)
 			if addr is None:
 				noloop = True
 			if args.raw:
