@@ -114,7 +114,7 @@ parser.add_argument('-columns', nargs='*', choices=['city','rcode','rname','ip',
 parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
 parser.add_argument('-file', metavar='FILE', nargs='?', help='Read a list of IP addresses from a file')
 parser.add_argument('-hostname', metavar='HOSTNAME', nargs='?', help='Retrieve information using a hostname.')
-parser.add_argument('-http', metavar='PORT', nargs='*', type=int, default=8675, help='Starts as a web server on PORT (8675 by default). Server accepts querystring ?ip=nnn.nnn.nnn.nnn and returns raw JSON object')
+parser.add_argument('-http', metavar='PORT', nargs='*', type=int, help='Starts as a web server on PORT (8675 by default). Server accepts querystring ?ip=nnn.nnn.nnn.nnn and returns raw JSON object')
 parser.add_argument('-ignore', metavar='IP_ADDR', nargs='*', help='IP addresses to ignore, separated by spaces. Providing no IP addresses will ignore your own public IP address.')
 parser.add_argument('-raw', action='store_true', help='Return the raw JSON result from FreeGeoIp as is (i.e. in unicode format)')
 parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pairs to search for in the results. (Can be paused with the -wait flag.)')
@@ -123,11 +123,11 @@ args = parser.parse_args()
 
 if args.http is not None:
 	try:
-		SERVER_PORT = SERVER_PORT if len(args.http)<1 else int(args.http[0])
+		SERVER_PORT = SERVER_PORT if len(args.http)<1 else args.http[0]
 		#Create a web server and define the handler to manage the
 		#incoming request
 		server = HTTPServer(('', SERVER_PORT), myHandler)
-		print 'Started httpserver on port ' , SERVER_PORT
+		print 'Started httpserver on port' , SERVER_PORT
 		server.serve_forever()
 	except KeyboardInterrupt:
 		print color.ORANGE+"\nExiting...\n"+color.END
@@ -136,7 +136,7 @@ if args.http is not None:
 # The loop
 def main():
 	while True:
-		print("\n")
+		#print("\n")
 		addr = args.ipaddr
 		noloop = False
 		if addr:
