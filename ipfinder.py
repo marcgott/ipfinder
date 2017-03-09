@@ -132,6 +132,8 @@ if args.http is not None:
 		print color.ORANGE+"\nExiting...\n"+color.END
 		exit(0)
 
+print args.ignore
+
 # The loop
 def main():
 	while True:
@@ -165,15 +167,15 @@ def main():
 						pass
 					else:
 						dataobj = geofetch(addr)
-					if args.raw:
-						print dataobj
-					else:
-						print_row(dataobj,True)
-						print_row(dataobj)
-						print "\n"
-						if args.wait and match is True:
-							raw_input("Press enter key to continue")
-						match=False
+						if args.raw:
+							print dataobj
+						else:
+							print_row(dataobj,True)
+							print_row(dataobj)
+							print "\n"
+							if args.wait and match is True:
+								raw_input("Press enter key to continue")
+							match=False
 			except (KeyboardInterrupt,SystemExit):
 				print color.ORANGE+"\nExiting...\n"+color.END
 				sys.exit(2)
@@ -184,27 +186,25 @@ def main():
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
 			if addr in args.ignore:
-				raise Exception
+				pass
 			else:
 				dataobj = geofetch(addr)
-			if addr is None:
-				noloop = True
-			if args.raw:
-				# Return raw JSON format
-				print dataobj
-				sys.exit(0)
-			elif args.coordinates:
-				# Return lat,lon
-				print str(dataobj["latitude"])+","+str(dataobj["longitude"])
-				sys.exit(0)
-			else:
-				print_row(dataobj,True)
-				print_row(dataobj)
-				print "\n"
-			if noloop is True:
-				sys.exit(0)
-		except (Exception):
-			pass
+				if addr is None:
+					noloop = True
+				if args.raw:
+					# Return raw JSON format
+					print dataobj
+					sys.exit(0)
+				elif args.coordinates:
+					# Return lat,lon
+					print str(dataobj["latitude"])+","+str(dataobj["longitude"])
+					sys.exit(0)
+				else:
+					print_row(dataobj,True)
+					print_row(dataobj)
+					print "\n"
+				if noloop is True:
+					sys.exit(0)
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
