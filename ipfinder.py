@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 
+import mgcolor
+color  = mgcolor.TerminalColor
 import sys
 import socket
 import urllib2
 import time
 import json
+import pip
+import pip.req
+import pkg_resources
 import argparse
+from argparse import RawTextHelpFormatter
 import collections
 from django.utils.encoding import smart_str, smart_unicode
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+SERVER_PORT = 8675
 from urlparse import urlparse, parse_qs
-import mgcolor
 
 # This is a small color class I use to give the terminal some pizzazz
-color  = mgcolor.TerminalColor
-SERVER_PORT = 8675
 
 searchParams = []
 colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','time_zone':'tz','longitude':'lon','metro_code':'mcode','latitude':'lat','country_code':'ccode','country_name':'cname','zip_code':'zip'}
@@ -78,6 +82,11 @@ def print_row(dataobj,header=False):
 	if header is True:
 		hstart = color.BOLD+str(color.BLUE if not iscached else color.CYAN)
 		pval = dataobj.keys()
+		temp = []
+		for p in pval:
+			title = smart_str(p).upper() if p=='ip' else smart_str(p).replace("_"," ").title()
+			temp.append( title )
+		pval = tuple(temp)
 	else:
 		hstart = ''
 		pval = dataobj.values()
@@ -88,8 +97,9 @@ def print_row(dataobj,header=False):
 	if header:
 		divider = color.GREEN+"="+color.END if match is True else "="
 		print (divider*17+" ")*len(dataobj)
+	else:
+		time.sleep(float(args.delay[0]))
 	match = False
-	time.sleep(0.4)
 
 # Thank you for the magic, FreeGeoIP!
 def geofetch(addr):
@@ -107,10 +117,27 @@ def geofetch(addr):
 
 # Initialize the command line parsing arguments
 desc = "IP Address Information Fetcher. A simple command line tool to retrieve physical location information based on an IP address. Information supplied by FreeGeoIP."
-parser = argparse.ArgumentParser(description=desc,epilog='Thanks for sharing!')
-parser.add_argument('ipaddr', metavar='IP_ADDR', nargs='?', help='Fetch FreeGeoIP data of a single IP address',type=str)
-parser.add_argument('-columns', nargs='*', choices=['city','rcode','rname','ip','tz','lat','lon','mcode','ccode','cname','zip'],help='Select which columns to show:\ncity: city name\nrcode: region code (US States) '+color.BOLD+'rname:'+color.END+' region name (US States) '+color.BOLD+'ip:'+color.END+' IP address '+color.BOLD+'tz:'+color.END+' Timezone')
+parser = argparse.ArgumentParser(description=desc,epilog='''Note: Because awk writes to a buffer, you need to run ipfinder against a live Apache-style access_log with stdbuf:
+tail -f /path/to/logs/access_log | stdbuf -oL awk '{print $1}' |python -m ipfinder.
+
+Thanks for sharing!''',formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('ipaddr', metavar='IP_ADDR', nargs='?', help='Fetch data of a single IP address. If omitted, you will be prompted to enter an IP address or hostname.',type=str)
+parser.add_argument('-columns', nargs='*', choices=['city','rcode','rname','ip','tz','lat','lon','mcode','ccode','cname','zip'],help='''\
+Select which columns to show, separated by spaces:
+'''+color.BOLD+'city:'''+color.END+'''	City name
+'''+color.BOLD+'rcode:'''+color.END+'''	Region code (US States)
+'''+color.BOLD+'''rname:'''+color.END+'''	Region name (US States)
+'''+color.BOLD+'''ip:'''+color.END+'''	IP address 
+'''+color.BOLD+'''tz:'''+color.END+'''	Timezone
+'''+color.BOLD+'''lat:'''+color.END+'''	Latitude
+'''+color.BOLD+'''lon:'''+color.END+'''	Longitude
+'''+color.BOLD+'''mcode:'''+color.END+'''	Metro Code
+'''+color.BOLD+'''ccode:'''+color.END+'''	City Code
+'''+color.BOLD+'''cname:'''+color.END+'''	City Name
+'''+color.BOLD+'''zip:'''+color.END+'''	Zip/postal code
+''')
 parser.add_argument('-coordinates', action='store_true', help='Return decimal values as "lat,lon" from results for mapping. Not available when using -file flag.')
+parser.add_argument('-delay', metavar='DELAY', nargs=1, help='Delay in seconds after output (accepts decimals as fractions of a second.)',default=0.4)
 parser.add_argument('-file', metavar='FILE', nargs='?', help='Read a list of IP addresses from a file')
 parser.add_argument('-hostname', metavar='HOSTNAME', nargs='?', help='Retrieve information using a hostname.')
 parser.add_argument('-http', metavar='PORT', nargs='*', type=int, help='Starts as a web server on PORT (8675 by default). Server accepts querystring ?ip=nnn.nnn.nnn.nnn and returns raw JSON object')
@@ -120,6 +147,15 @@ parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pai
 parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found. Will not work on piped live file (yet).')
 args = parser.parse_args()
 
+
+print(color.PERIWINKLE+"  ___________  ______ _           _")
+print(" |_   _| ___ \ |  ___(_)         | |")
+print("   | | | |_/ / | |_   _ _ __   __| | ___ _ __")
+print("   | | |  __/  |  _| | | '_ \ / _` |/ _ \ '__|")
+print("  _| |_| |     | |   | | | | | (_| |  __/ |")
+print("  \___/\_|     \_|   |_|_| |_|\__,_|\___|_|")
+print("\n   https://github.com/marcgott/ipfinder \n"+color.END)
+						                                                 
 if args.http is not None:
 	try:
 		SERVER_PORT = SERVER_PORT if len(args.http)<1 else args.http[0]
@@ -135,7 +171,6 @@ if args.http is not None:
 # The loop
 def main():
 	while True:
-		#print("\n")
 		addr = args.ipaddr
 		noloop = False
 		if addr:
@@ -188,6 +223,17 @@ def main():
 			else:
 				try:
 					socket.inet_aton(addr)
+				except:
+					pass
+				try:
+					addr = socket.gethostbyname(addr)
+				except:
+					if addr.startswith('\x08'):
+						print "\nHELP!!"
+						parser.print_help()
+					else:
+						raise #print("Invalid IP address or hostname.")
+				else:
 					dataobj = geofetch(addr)
 					if addr is None:
 						noloop = True
@@ -205,8 +251,7 @@ def main():
 						print "\n"
 					if noloop is True:
 						sys.exit(0)
-				except socket.error:
-					pass
+
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
