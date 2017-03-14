@@ -239,7 +239,8 @@ def main():
 						noloop = True
 					if args.raw:
 						# Return raw JSON format
-						print dataobj
+						#print dataobj
+						print json.dumps(dataobj).decode('unicode-escape').encode('utf8')
 						sys.exit(0)
 					elif args.coordinates:
 						# Return lat,lon
