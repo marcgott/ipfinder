@@ -24,6 +24,7 @@ colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','
 match = False
 iscached = False
 ipcache = {}
+searchParams = []
 
 #This class will handles any incoming request from
 #the browser 
@@ -175,13 +176,13 @@ if args.http is not None:
 # The loop
 def main():
 	while True:
-		searchParams = []
 		addr = args.ipaddr
 		noloop = False
 		if addr:
 			# Single IP address
 			noloop = True
 		if args.search:
+			searchParams = []
 			# Initializes the search key/value pairs
 			for s in args.search:
 				sdict = dict( (k,v) for k,v in (a.split('=') for a in s.split() ) )
