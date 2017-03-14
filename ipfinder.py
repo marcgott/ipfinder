@@ -20,7 +20,6 @@ from urlparse import urlparse, parse_qs
 
 # This is a small color class I use to give the terminal output some pizzazz
 
-searchParams = []
 colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','time_zone':'tz','longitude':'lon','metro_code':'mcode','latitude':'lat','country_code':'ccode','country_name':'cname','zip_code':'zip'}
 match = False
 iscached = False
@@ -176,6 +175,7 @@ if args.http is not None:
 # The loop
 def main():
 	while True:
+		searchParams = []
 		addr = args.ipaddr
 		noloop = False
 		if addr:
