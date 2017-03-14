@@ -222,7 +222,8 @@ def main():
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
 				print args.ignore
-			if args.ignore is not None and addr in args.ignore:
+
+			if addr in args.ignore:
 				pass
 			else:
 				try:
