@@ -182,7 +182,6 @@ def main():
 			# Single IP address
 			noloop = True
 		if args.search:
-			searchParams = []
 			# Initializes the search key/value pairs
 			for s in args.search:
 				sdict = dict( (k,v) for k,v in (a.split('=') for a in s.split() ) )
