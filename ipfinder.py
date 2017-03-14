@@ -98,7 +98,7 @@ def print_row(dataobj,header=False):
 		divider = color.GREEN+"="+color.END if match is True else "="
 		print (divider*17+" ")*len(dataobj)
 	else:
-		time.sleep(float(args.delay[0]))
+		time.sleep(args.delay)
 	match = False
 
 # Thank you for the magic, FreeGeoIP!
@@ -109,11 +109,14 @@ def geofetch(addr):
 		iscached = True
 		return ipcache[str(addr)]
 	else:
-		geo = urllib2.urlopen("http://freegeoip.net/json/"+addr)
-		ipdata = geo.read()
-		ipcache[addr] = json.loads(ipdata,'UTF-8')
-		iscached = False
-		return json.loads(ipdata,'UTF-8')
+		try:
+			geo = urllib2.urlopen("http://freegeoip.net/json/"+addr)
+			ipdata = geo.read()
+			ipcache[addr] = json.loads(ipdata,'UTF-8')
+			iscached = False
+			return json.loads(ipdata,'UTF-8')
+		except urllib2.HTTPError:
+			print (addr+ " not a valid ip address.")
 
 # Initialize the command line parsing arguments
 desc = "IP Address Information Fetcher. A simple command line tool to retrieve physical location information based on an IP address. Information supplied by FreeGeoIP."
