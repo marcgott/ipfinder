@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import base64
 import mgcolor
 color  = mgcolor.TerminalColor
 import sys
@@ -150,15 +151,10 @@ parser.add_argument('-search', metavar='key=val', nargs='+', help='Key/value pai
 parser.add_argument('-wait', action='store_true', help='Pause the script when a match to a search is found. Will not work on piped live file (yet).')
 args = parser.parse_args()
 
-
-print(color.PERIWINKLE+"  ___________  ______ _           _")
-print(" |_   _| ___ \ |  ___(_)         | |")
-print("   | | | |_/ / | |_   _ _ __   __| | ___ _ __")
-print("   | | |  __/  |  _| | | '_ \ / _` |/ _ \ '__|")
-print("  _| |_| |     | |   | | | | | (_| |  __/ |")
-print("  \___/\_|     \_|   |_|_| |_|\__,_|\___|_|")
-print("\n   https://github.com/marcgott/ipfinder \n"+color.END)
-						                                                 
+if not args.raw:
+	print(color.PERIWINKLE)
+	print(base64.b64decode("ICBfX19fX19fX19fXyAgX19fX19fIF8gICAgICAgICAgIF8NCiB8XyAgIF98IF9fXyBcIHwgIF9fXyhfKSAgICAgICAgIHwgfA0KICAgfCB8IHwgfF8vIC8gfCB8XyAgIF8gXyBfXyAgIF9ffCB8IF9fXyBfIF9fDQogICB8IHwgfCAgX18vICB8ICBffCB8IHwgJ18gXCAvIF9gIHwvIF8gXCAnX198DQogIF98IHxffCB8ICAgICB8IHwgICB8IHwgfCB8IHwgKF98IHwgIF9fLyB8DQogIFxfX18vXF98ICAgICBcX3wgICB8X3xffCB8X3xcX18sX3xcX19ffF98DQoNCiAgICBodHRwczovL2dpdGh1Yi5jb20vbWFyY2dvdHQvaXBmaW5kZXINCg=="))					                                                 
+	print(color.END)
 if args.http is not None:
 	try:
 		SERVER_PORT = SERVER_PORT if len(args.http)<1 else args.http[0]
@@ -221,8 +217,8 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
-			if addr in args.ignore:
-				raise
+			if args.ignore is not None and addr in args.ignore:
+				pass
 			else:
 				try:
 					socket.inet_aton(addr)
@@ -234,7 +230,6 @@ def main():
 					print (addr + "not a valid IP address")
 				except:
 					if addr.startswith('\x08'):
-						print "\nHELP!!"
 						parser.print_help()
 					else:
 						raise #print("Invalid IP address or hostname.")
@@ -254,14 +249,15 @@ def main():
 						print_row(dataobj,True)
 						print_row(dataobj)
 						print "\n"
-					if noloop is True:
-						sys.exit(0)
-
+						if noloop:
+							exit(0)
+		
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
 		except:
-			pass
+			if noloop is True:
+				exit(0)
 
 if __name__ == "__main__":
     main()
