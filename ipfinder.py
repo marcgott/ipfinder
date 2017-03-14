@@ -224,12 +224,13 @@ def main():
 				print args.ignore
 
 			if addr in args.ignore:
-				pass
+				print "Ignoring "+addr
+				raise
 			else:
 				try:
 					socket.inet_aton(addr)
 				except:
-					raise
+					pass
 				try:
 					addr = socket.gethostbyname(addr)
 				except socket.gaierror:
