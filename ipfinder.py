@@ -76,8 +76,6 @@ def print_row(dataobj,header=False):
 				match = True
 				for key in dataobj.keys():
 					dataobj[key] = color.GREEN+color.BOLD+("%-17s" % dataobj[key])+color.END
-			print dataobj[param_d.keys()[0]]
-			print param_d.values()[0]
 
 # Since we want to print across, not down, we gotta iterate twice
 # BLUE if it's a new IP address, CYAN if it comes from the cache
