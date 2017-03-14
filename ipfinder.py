@@ -230,6 +230,8 @@ def main():
 					pass
 				try:
 					addr = socket.gethostbyname(addr)
+				except socket.gaierror:
+					print (addr + "not a valid IP address")
 				except:
 					if addr.startswith('\x08'):
 						print "\nHELP!!"
