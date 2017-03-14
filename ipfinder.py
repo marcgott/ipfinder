@@ -190,7 +190,7 @@ def main():
 				args.ignore.append(smart_str(mydata["ip"]))
 			else:
 				for ip in args.ignore:
-					args.ignore.append(smart_str(ip))
+					args.ignore.append(ip)
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
 			if args.hostname is not None:
