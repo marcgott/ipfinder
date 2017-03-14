@@ -18,7 +18,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 SERVER_PORT = 8675
 from urlparse import urlparse, parse_qs
 
-# This is a small color class I use to give the terminal some pizzazz
+# This is a small color class I use to give the terminal output some pizzazz
 
 searchParams = []
 colabbr = {'city':'city','region_code':'rcode','region_name':'rname','ip':'ip','time_zone':'tz','longitude':'lon','metro_code':'mcode','latitude':'lat','country_code':'ccode','country_name':'cname','zip_code':'zip'}
@@ -76,6 +76,8 @@ def print_row(dataobj,header=False):
 				match = True
 				for key in dataobj.keys():
 					dataobj[key] = color.GREEN+color.BOLD+("%-17s" % dataobj[key])+color.END
+			print dataobj[param_d.keys()[0]]
+			print param_d.values()[0]
 
 # Since we want to print across, not down, we gotta iterate twice
 # BLUE if it's a new IP address, CYAN if it comes from the cache
