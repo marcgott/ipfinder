@@ -229,7 +229,7 @@ def main():
 				try:
 					socket.inet_aton(addr)
 				except:
-					pass
+					raise
 				try:
 					addr = socket.gethostbyname(addr)
 				except socket.gaierror:
@@ -262,6 +262,8 @@ def main():
 		except (KeyboardInterrupt):
 			print color.ORANGE+"\nExiting...\n"+color.END
 			sys.exit(0)
+		except:
+			pass
 
 if __name__ == "__main__":
     main()
