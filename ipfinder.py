@@ -221,10 +221,7 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
-				print args.ignore
-				print addr
 			if addr in args.ignore:
-				print "Ignoring "+addr
 				raise
 			else:
 				try:
