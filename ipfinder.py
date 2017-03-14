@@ -188,9 +188,6 @@ def main():
 			if not args.ignore:
 				mydata = geofetch('')
 				args.ignore.append(smart_str(mydata["ip"]))
-			else:
-				for ip in args.ignore:
-					args.ignore.append(ip)
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
 			if args.hostname is not None:
@@ -224,6 +221,7 @@ def main():
 			prompt = "Enter an IP address or hostname: " if sys.stdin.isatty() else ""
 			if addr is None and args.file is None:
 				addr = raw_input(prompt)
+				print args.ignore
 			if args.ignore is not None and addr in args.ignore:
 				pass
 			else:
