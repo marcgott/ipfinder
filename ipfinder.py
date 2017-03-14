@@ -188,6 +188,9 @@ def main():
 			if not args.ignore:
 				mydata = geofetch('')
 				args.ignore.append(smart_str(mydata["ip"]))
+			else:
+				for ip in args.ignore:
+					args.ignore.append(smart_str(ip))
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
 			if args.hostname is not None:
