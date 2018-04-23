@@ -26,7 +26,8 @@ match = False
 iscached = False
 ipcache = {}
 searchParams = []
-
+#Get an API key here: https://ipstack.com/
+ipstack_key=""
 #This class will handles any incoming request from
 #the browser 
 class myHandler(BaseHTTPRequestHandler):
@@ -104,6 +105,8 @@ def print_row(dataobj,header=False):
 
 # Thank you for the magic, FreeGeoIP!
 def geofetch(addr):
+	if addr == "0.0.0.0":
+		addr="check"
 	global iscached
 	exist = ipcache.get(str(addr),None)
 	if exist is not None:
@@ -111,7 +114,8 @@ def geofetch(addr):
 		return ipcache[str(addr)]
 	else:
 		try:
-			geo = urllib2.urlopen("http://freegeoip.net/json/"+addr)
+			#geo = urllib2.urlopen("http://freegeoip.net/json/"+addr)
+			geo = urllib2.urlopen("http://api.ipstack.com/"+addr+"?access_key="+ipstack_key+"&output=json&legacy=1")
 			ipdata = geo.read()
 			ipcache[addr] = json.loads(ipdata,'UTF-8')
 			iscached = False
@@ -182,7 +186,7 @@ def main():
 				searchParams.append(sdict)
 		if args.ignore is not None:
 			if not args.ignore:
-				mydata = geofetch('')
+				mydata = geofetch('check')
 				args.ignore.append(smart_str(mydata["ip"]))
 		if args.hostname:
 			addr = socket.gethostbyname(args.hostname)
